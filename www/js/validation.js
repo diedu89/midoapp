@@ -1,23 +1,31 @@
 (function(){
 	var app = angular.module('customValidations',[]);
 
-	var INTEGER_REGEXP = /^\-?\d+$/;
-	app.directive('integer', function() {
-	  return {
-	    require: 'ngModel',
-	    link: function(scope, elm, attrs, ctrl) {
-	      ctrl.$parsers.unshift(function(viewValue) {
-	        if (INTEGER_REGEXP.test(viewValue)) {
-	          // it is valid
-	          ctrl.$setValidity('integer', true);
-	          return viewValue;
-	        } else {
-	          // it is invalid, return undefined (no model update)
-	          ctrl.$setValidity('integer', false);
-	          return undefined;
-	        }
-	      });
-	    }
-	  };
-	});
+    //http://stackoverflow.com/questions/19036443/angularjs-how-to-allow-only-a-number-digits-and-decimal-point-to-be-typed-in
+    app.directive('validNumber', function() {
+      return {
+        require: '?ngModel',
+        link: function(scope, element, attrs, ngModelCtrl) {
+          if(!ngModelCtrl) {
+            return; 
+          }
+
+          ngModelCtrl.$parsers.push(function(val) {
+            var clean = val.replace( /[^0-9]+/g, '');
+            if (val !== clean) {
+              ngModelCtrl.$setViewValue(clean);
+              ngModelCtrl.$render();
+            }
+            return clean;
+          });
+
+          element.bind('keypress', function(event) {
+            if(event.keyCode === 32) {
+              event.preventDefault();
+            }
+          });
+        }
+      };
+    });
+
 })();

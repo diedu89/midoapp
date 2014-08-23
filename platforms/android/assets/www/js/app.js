@@ -1,33 +1,37 @@
 (function(){
 	var app = angular.module('contacts',['customValidations']);
 
-	app.controller('ListController', [
-		'$rootScope','$http',
-		function( $rootScope, $http){
-			$rootScope.contacts = [];
-			$http.jsonp(
-				'http://midotest.herokuapp.com//contacts.json?callback=JSON_CALLBACK'
-			).success(function(contacts){
-				console.log(contacts);
-				$rootScope.contacts = contacts;
-			}).error(function(){
-				alert("Error al obtener datos");
-			});
-		}
-	]);
+	app.controller('ViewController', function($scope){
+		$scope.view = 'list';
 
-	app.controller('ViewController', function(){
-		this.view = 'list';
-
-		this.setOption = function(view){
-			this.view = view;
+		$scope.setOption = function(view){
+			$scope.view = view;
 			return true;
 		}
 
-		this.isSelected = function(view){
-			return this.view == view;
+		$scope.isSelected = function(view){
+			return $scope.view == view;
 		}
 	});
+
+	app.controller('ListController', [
+		'$rootScope','$http','$scope',
+		function( $rootScope, $http, $scope){
+			$rootScope.contacts = [];
+
+			$scope.getList = function(){
+				$http.jsonp(
+					'http://midotest.herokuapp.com//contacts.json?callback=JSON_CALLBACK'
+				).success(function(contacts){
+					$rootScope.contacts = contacts;
+				}).error(function(){
+					alert("Error al obtener datos");
+				});
+			}
+
+			$scope.getList();
+		}
+	]);
 
 	app.controller('FormController', [
 		'$rootScope','$http',
